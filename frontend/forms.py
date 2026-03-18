@@ -1,10 +1,15 @@
 from django import forms
-from example.models import Formulario
+from example.models import User, TagProblema
 
-class FormularioForm(forms.ModelForm):
+class UserProfileForm(forms.ModelForm):
     class Meta:
-        model = Formulario
-        fields = ['descricao']
+        model = User
+        fields = ['username', 'bio', 'problemas']
         widgets = {
-            'descricao': forms.Textarea(attrs={'rows':4, 'cols':40}),
+            'problemas': forms.CheckboxSelectMultiple(),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Deixa o visual do bootstrap nos checkboxes
+        self.fields['problemas'].queryset = TagProblema.objects.all()

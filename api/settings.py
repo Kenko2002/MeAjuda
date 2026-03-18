@@ -42,8 +42,10 @@ INSTALLED_APPS = [
     'example',
     'frontend',
     'rest_framework',
+    'rest_framework_simplejwt',
     'drf_spectacular',
     'django_bootstrap5',
+    
 ]
 
 
@@ -136,8 +138,8 @@ USE_TZ = True
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # JWT aqui
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -145,10 +147,21 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Minha API Django',
-    'DESCRIPTION': 'Documentação dos endpoints do meu projeto',
+    'TITLE': 'MeAjuda API',
+    'DESCRIPTION': 'API para conexão de usuários a instituições de ajuda',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_PATCH': True,
+    'SECURITY': [{'BearerAuth': []}], # Define que a segurança global é Bearer
+    'APPEND_COMPONENTS': {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
 }
 
 # Static files (CSS, JavaScript, Images)

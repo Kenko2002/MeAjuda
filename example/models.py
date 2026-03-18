@@ -1,24 +1,44 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+class TagProblema(models.Model):
+    nome = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nome
+
 class User(AbstractUser):
-    # Adiciona campos personalizados se necessário
-    # Por exemplo, um campo adicional
     bio = models.TextField(blank=True, null=True)
+    problemas = models.ManyToManyField(TagProblema, blank=True)
 
     class Meta:
         verbose_name = 'Usuário'
         verbose_name_plural = 'Usuários'
 
-
-class Formulario(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='formularios')
-    created_at = models.DateTimeField(auto_now_add=True)
-    descricao = models.TextField()
-
-    class Meta:
-        verbose_name = 'Formulário'
-        verbose_name_plural = 'Formulários'
+class Instituicao(models.Model):
+    nome = models.CharField(max_length=255)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    tags = models.ManyToManyField(TagProblema)
 
     def __str__(self):
-        return f"Formulário de {self.user.username} em {self.created_at}"
+        return self.nome
+
+class RecursoAjuda(models.Model):
+    TIPO_CHOICES = [('TEL', 'Telefone'), ('SITE', 'Site'), ('RED', 'Rede Social')]
+    titulo = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=4, choices=TIPO_CHOICES)
+    valor = models.CharField(max_length=255)
+    tag = models.ForeignKey(TagProblema, on_delete=models.CASCADE)
+    TIPO_CHOICES = [
+        ('TEL', 'Telefone'),
+        ('SITE', 'Site'),
+        ('RED', 'Rede Social'),
+    ]
+    titulo = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=4, choices=TIPO_CHOICES)
+    valor = models.CharField(max_length=255)  # URL ou Número
+    tag = models.ForeignKey(TagProblema, on_delete=models.CASCADE, related_name='recursos')
+
+    def __str__(self):
+        return f"{self.titulo} ({self.tag.nome})"

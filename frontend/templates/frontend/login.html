@@ -1,17 +1,30 @@
 {% extends "frontend/base.html" %}
 {% load django_bootstrap5 %}
 
-{% block title %}Login{% endblock %}
-
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h1 class="mb-4">Login</h1>
-        <form method="POST" novalidate>
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <button class="btn btn-primary" type="submit">Entrar</button>
-        </form>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+            <div class="text-center mb-5">
+                <div class="bg-primary d-inline-block p-3 rounded-circle mb-3 shadow">
+                    <i class="bi bi-shield-lock-fill text-white fs-1"></i>
+                </div>
+                <h2 class="fw-bold text-white">MeAjuda</h2>
+                <p class="text-muted">Acesse para ver o mapa</p>
+            </div>
+            
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <div class="d-grid mt-4">
+                            <button class="btn btn-primary btn-lg fw-bold" type="submit">ENTRAR</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
