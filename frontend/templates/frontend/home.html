@@ -4,6 +4,7 @@
 {% block content %}
 <div class="row g-4">
     <div class="col-lg-8 order-1 order-lg-2">
+        <!-- Mapa com borda azul meia-noite -->
         <div id="map" style="height: 60vh; min-height: 400px; border-radius: 15px; border: 2px solid var(--accent-blue);"></div>
     </div>
 
@@ -34,12 +35,15 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+    // 1. Configuração do Mapa Dark
     var map = L.map('map', { zoomControl: false }).setView([0, 0], 2);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CARTO'
     }).addTo(map);
 
+    // 2. Definição do Marcador Azul Meia-noite (SVG)
     const midnightBluePin = L.divIcon({
         className: 'custom-div-icon',
         html: `<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,29 +53,35 @@
     });
 
     var allPoints = [];
+
+    // 3. Plotar Instituições com o novo ícone e botão "IR"
     {% localize off %}
     {% for inst in instituicoes %}
         L.marker([{{ inst.latitude }}, {{ inst.longitude }}], { icon: midnightBluePin })
             .addTo(map)
             .bindPopup(
-                "<div style='min-width: 150px; color: white;'>" +
-                    "<b style='font-size: 14px;'>{{ inst.nome|escapejs }}</b>" +
-                    "<div style='margin-top: 8px;'>" +
-                        "<small style='display: block; margin-bottom: 4px; font-weight: bold;'>Resolve problemas de:</small>" +
+                "<div style='min-width: 180px; color: white;'>" +
+                    "<b style='font-size: 15px; display: block; margin-bottom: 5px;'>{{ inst.nome|escapejs }}</b>" +
+                    "<div style='margin-bottom: 12px;'>" +
+                        "<small style='display: block; margin-bottom: 6px; color: #ccc;'>Resolve problemas de:</small>" +
                         "<div style='display: flex; flex-wrap: wrap; gap: 4px;'>" +
                             "{% for tag in inst.tags.all %}" +
-                                "<span style='background: var(--primary-action); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;'>" +
+                                "<span style='background: var(--accent-blue); color: white; padding: 2px 7px; border-radius: 4px; font-size: 10px; border: 1px solid rgba(255,255,255,0.1);'>" +
                                     "{{ tag.nome|escapejs }}" +
                                 "</span>" +
                             "{% endfor %}" +
                         "</div>" +
                     "</div>" +
+                    "<a href='https://www.google.com/maps/place/{{ inst.latitude }},{{ inst.longitude }}' target='_blank' class='btn btn-primary btn-sm w-100' style='border-radius: 6px; font-weight: bold; background-color: var(--primary-action); border: none; padding: 6px;'>" +
+                        "<i class='bi bi-geo-alt-fill me-1'></i> IR" +
+                    "</a>" +
                 "</div>"
             );
         allPoints.push([{{ inst.latitude }}, {{ inst.longitude }}]);
     {% endfor %}
     {% endlocalize %}
 
+    // 4. Geolocalização do Usuário
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(function(pos) {
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
@@ -80,20 +90,38 @@
             if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] });
             document.getElementById('user-status').innerHTML = `<div class="card-body py-2 px-3 text-info small fw-bold"><i class="bi bi-geo-fill me-2"></i>Localização Ativa</div>`;
         }, function() { if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] }); });
+    } else {
+        if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] });
     }
 </script>
 
 <style>
+    /* Reset de ícone do Leaflet */
     .custom-div-icon { background: none; border: none; }
     
-    /* Balão do Mapa (Popup) */
+    /* Customização do Balão (Popup) Leaflet para Midnight Blue */
     .leaflet-popup-content-wrapper, .leaflet-popup-tip {
         background: var(--bg-midnight) !important;
         border: 1px solid var(--accent-blue);
-        border-radius: 10px;
-        color: white !important;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.4);
     }
-    .leaflet-popup-content * { color: white !important; }
-    .leaflet-container a.leaflet-popup-close-button { color: white !important; }
+    
+    /* Cor de texto forçada dentro do popup */
+    .leaflet-popup-content * { 
+        color: white !important; 
+    }
+
+    .leaflet-container a.leaflet-popup-close-button {
+        color: white !important;
+        padding: 8px 8px 0 0;
+    }
+
+    /* Estilo hover para as instituições na barra lateral */
+    .list-group-item-action:hover {
+        background-color: var(--accent-blue) !important;
+        transform: translateX(5px);
+        transition: all 0.2s ease;
+    }
 </style>
 {% endblock %}
