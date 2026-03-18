@@ -1,30 +1,103 @@
 {% extends "frontend/base.html" %}
 {% load django_bootstrap5 %}
+{% load static %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
-            <div class="text-center mb-5">
-                <div class="bg-primary d-inline-block p-3 rounded-circle mb-3 shadow">
-                    <i class="bi bi-shield-lock-fill text-white fs-1"></i>
-                </div>
-                <h2 class="fw-bold text-white">MeAjuda</h2>
-                <p class="text-muted">Acesse para ver o mapa</p>
+<!-- Container que garante centralização vertical e horizontal completa -->
+<div class="d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+        
+        <!-- Área da Logo com Animação -->
+        <div class="text-center mb-4 fade-in">
+            <div class="logo-wrapper mb-3">
+                <img src="{% static './logo.png' %}" 
+                     alt="MeAjuda Logo" 
+                     class="img-fluid custom-logo">
             </div>
             
-            <div class="card shadow-lg border-0">
-                <div class="card-body p-4">
-                    <form method="POST">
-                        {% csrf_token %}
+        </div>
+        
+        <!-- Card de Login -->
+        <div class="card shadow-lg border-0 fade-in-delayed">
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3 custom-form-group">
                         {% bootstrap_form form %}
-                        <div class="d-grid mt-4">
-                            <button class="btn btn-primary btn-lg fw-bold" type="submit">ENTRAR</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button class="btn btn-primary btn-lg fw-bold shadow-sm" type="submit">
+                            ENTRAR
+                        </button>
+                    </div>
+                </form>
             </div>
+        </div>
+
+        <!-- Rodapé do Login -->
+        <div class="text-center mt-4 fade-in-delayed">
+            <p class="text-muted small">© 2024 MeAjuda - Todos os direitos reservados</p>
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilização da Logo */
+    .custom-logo {
+        /* Ajustei o tamanho para 280px para não estourar o card, 
+           mas mantendo uma presença forte */
+        max-width: 280px; 
+        height: auto;
+        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+    }
+
+    .logo-wrapper {
+        display: inline-block;
+        padding: 10px;
+    }
+
+    /* Animações de Entrada */
+    .fade-in {
+        animation: fadeInDown 0.8s ease-out;
+    }
+
+    .fade-in-delayed {
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Ajuste de cores para os labels do Django Bootstrap */
+    .custom-form-group label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.9) !important;
+    }
+
+    /* Deixar o card ligeiramente arredondado */
+    .card {
+        border-radius: 20px !important;
+    }
+
+    .btn-primary {
+        border-radius: 12px !important;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 119, 182, 0.4) !important;
+    }
+</style>
 {% endblock %}

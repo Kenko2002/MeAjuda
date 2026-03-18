@@ -16,14 +16,18 @@
             --bg-deep: #0d1b2a; 
             --bg-midnight: #1b263b;
             --accent-blue: #415a77;
-            --text-light: #e0e1dd;
+            --text-white: #ffffff;
             --primary-action: #0077b6;
             --sidebar-width: 280px; 
         }
 
+        /* Texto Branco Global */
+        body, h1, h2, h3, h4, h5, h6, p, span, div, label, .nav-link, .list-group-item {
+            color: var(--text-white) !important;
+        }
+
         body { 
             background-color: var(--bg-deep); 
-            color: var(--text-light);
             min-height: 100vh; 
             overflow-x: hidden;
             overscroll-behavior-y: contain; 
@@ -42,13 +46,12 @@
             border-radius: 50%; width: 45px; height: 45px;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            color: var(--text-light);
         }
 
         /* Sidebar e Navbar */
         .sidebar { background-color: var(--bg-midnight) !important; border-right: 1px solid var(--accent-blue) !important; }
         .navbar-dark { background-color: var(--bg-midnight) !important; border-bottom: 1px solid var(--accent-blue); }
-        .offcanvas { background-color: var(--bg-midnight) !important; color: var(--text-light); }
+        .offcanvas { background-color: var(--bg-midnight) !important; }
 
         {% if request.resolver_match.url_name != 'login' %}
             @media (min-width: 992px) {
@@ -65,36 +68,35 @@
         {% endif %}
 
         /* Inputs e Cards */
-        .card { background-color: var(--bg-midnight); border: 1px solid var(--accent-blue); color: var(--text-light); }
-        .form-control, .form-select { background-color: #152233; border: 1px solid var(--accent-blue); color: white; }
-        .form-control:focus { background-color: #1b263b; color: white; border-color: var(--primary-action); box-shadow: none; }
+        .card { background-color: var(--bg-midnight); border: 1px solid var(--accent-blue); }
+        .form-control, .form-select { background-color: #152233 !important; border: 1px solid var(--accent-blue) !important; color: white !important; }
         
-        .nav-link { color: var(--text-light) !important; padding: 12px 20px; border-radius: 8px; margin: 4px 12px; transition: 0.3s; }
+        /* CORREÇÃO DO HOVER NOS ITENS DE LISTA */
+        .list-group-item { background-color: var(--bg-midnight) !important; border-color: var(--accent-blue) !important; }
+        .list-group-item-action:hover, .list-group-item-action:focus {
+            background-color: var(--accent-blue) !important;
+            color: white !important;
+        }
+        
         .nav-link:hover { background: var(--accent-blue); }
         .nav-link.active { background: var(--primary-action) !important; }
-        
-        .list-group-item { background-color: var(--bg-midnight); border-color: var(--accent-blue); color: var(--text-light); }
     </style>
 </head>
 <body>
-
     {% if request.resolver_match.url_name != 'login' %}
     <div id="ptr-indicator">
-        <div class="ptr-icon"><i class="bi bi-arrow-clockwise fs-4" id="ptr-arrow"></i></div>
+        <div class="ptr-icon"><i class="bi bi-arrow-clockwise fs-4"></i></div>
     </div>
-
     <nav class="navbar navbar-dark fixed-top mobile-nav px-3 shadow">
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
         <span class="navbar-brand mb-0 h1 fs-5">MeAjuda</span>
     </nav>
-
     <div class="swipe-area"></div>
-
     <div class="offcanvas-lg offcanvas-start sidebar shadow" tabindex="-1" id="sidebarMenu">
         <div class="offcanvas-header d-lg-none">
-            <h5 class="offcanvas-title fw-bold" style="color:white">Menu</h5>
+            <h5 class="offcanvas-title fw-bold">Menu</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column p-0">
@@ -136,7 +138,7 @@
             const sidebarEl = document.getElementById('sidebarMenu');
             const bsOffcanvas = new bootstrap.Offcanvas(sidebarEl);
             const ptrIndicator = document.getElementById('ptr-indicator');
-            const ptrArrow = document.getElementById('ptr-arrow');
+            const ptrArrow = ptrIndicator.querySelector('i');
             let startX = 0, startY = 0, pulling = false;
 
             document.addEventListener('touchstart', e => {
@@ -157,10 +159,8 @@
             document.addEventListener('touchend', e => {
                 const diffX = e.changedTouches[0].clientX - startX;
                 const diffY = e.changedTouches[0].clientY - startY;
-
                 if (Math.abs(diffY) < 60 && diffX > 80 && startX < 40) bsOffcanvas.show();
                 if (Math.abs(diffY) < 60 && diffX < -80 && sidebarEl.classList.contains('show')) bsOffcanvas.hide();
-
                 if (pulling) {
                     if (diffY > 150) { location.reload(); } 
                     else { ptrIndicator.style.transform = `translateY(0)`; }
