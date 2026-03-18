@@ -5,7 +5,8 @@
 <div class="row g-4 h-100">
     <!-- Coluna do Mapa -->
     <div class="col-lg-8 order-1 order-lg-2">
-        <div id="map" class="responsive-map shadow-lg"></div>
+        <!-- Adicionado display: block e width: 100% para garantir ocupação -->
+        <div id="map" class="responsive-map shadow-lg" style="display: block; width: 100%;"></div>
     </div>
 
     <!-- Coluna de Informações -->
@@ -29,7 +30,7 @@
                 </div>
             </div>
             {% empty %}
-            <div class="p-4 text-center text-muted card">Não encontramos locais para seus problemas.</div>
+            <div class="p-4 text-center text-muted card border-secondary">Não encontramos locais para seus problemas.</div>
             {% endfor %}
         </div>
     </div>
@@ -41,10 +42,26 @@
 
 <script>
     // 1. Inicialização do Mapa
-    var map = L.map('map', { zoomControl: false }).setView([0, 0], 2);
+    var map = L.map('map', { 
+        zoomControl: false,
+        trackResize: true // Ajuda o Leaflet a observar mudanças de tamanho
+    }).setView([0, 0], 2);
+
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CARTO'
     }).addTo(map);
+
+    // FUNÇÃO CRUCIAL: Força o mapa a preencher o container
+    function fixMapSize() {
+        setTimeout(function(){ 
+            map.invalidateSize(); 
+        }, 200); // Pequeno delay para o CSS do Bootstrap assentar
+    }
+
+    // Chama ao carregar
+    window.addEventListener('load', fixMapSize);
+    // Chama ao redimensionar a tela
+    window.addEventListener('resize', fixMapSize);
 
     // 2. Marcador Midnight Blue
     const midnightBluePin = L.divIcon({
@@ -92,7 +109,10 @@
             allPoints.push([lat, lng]);
             if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] });
             document.getElementById('user-status').innerHTML = `<div class="card-body py-2 px-3 text-info small fw-bold"><i class="bi bi-geo-fill me-2"></i>Localização Ativa</div>`;
-        }, function() { if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] }); });
+            fixMapSize(); // Recalcula após focar no usuário
+        }, function() { if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] }); fixMapSize(); });
+    } else {
+        fixMapSize();
     }
 </script>
 
@@ -103,14 +123,14 @@
         border-radius: 15px;
         border: 2px solid var(--accent-blue);
         min-height: 400px;
-        /* Mobile Default */
-        height: 60vh;
+        height: 60vh; /* Mobile */
     }
 
-    /* Desktop: Ocupa o espaço vertical disponível */
+    /* Desktop */
     @media (min-width: 992px) {
         .responsive-map {
-            height: calc(100vh - 100px); /* 100vh menos margens e paddings do main-content */
+            /* Força a altura máxima baseada na tela */
+            height: calc(100vh - 120px) !important; 
         }
     }
 
@@ -125,21 +145,11 @@
     .leaflet-popup-content * { color: white !important; }
     .leaflet-container a.leaflet-popup-close-button { color: white !important; }
 
-    /* Lista Hover Corrigida */
-    .list-group-item-action {
-        transition: all 0.3s ease;
-        border-left: 0 solid var(--primary-action) !important;
-        position: relative;
-    }
+    /* Lista Hover */
     .list-group-item-action:hover {
         background-color: var(--accent-blue) !important;
         padding-left: 20px !important;
         border-left: 5px solid var(--primary-action) !important;
     }
-
-    /* Scrollbar Fina */
-    .custom-scroll-list::-webkit-scrollbar { width: 5px; }
-    .custom-scroll-list::-webkit-scrollbar-track { background: var(--bg-deep); }
-    .custom-scroll-list::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 10px; }
 </style>
 {% endblock %}
