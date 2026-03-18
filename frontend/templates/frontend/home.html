@@ -5,7 +5,6 @@
 <div class="row g-4 h-100">
     <!-- Coluna do Mapa -->
     <div class="col-lg-8 order-1 order-lg-2">
-        <!-- Adicionado display: block e width: 100% para garantir ocupação -->
         <div id="map" class="responsive-map shadow-lg" style="display: block; width: 100%;"></div>
     </div>
 
@@ -17,7 +16,7 @@
             </div>
         </div>
         
-        <h5 class="mb-3 fw-bold">Locais Correspondentes</h5>
+        <h5 class="mb-3 fw-bold text-white">Locais Correspondentes</h5>
         
         <div class="list-group shadow-lg custom-scroll-list flex-grow-1" style="max-height: 65vh; overflow-y: auto; overflow-x: hidden; border-radius: 12px;">
             {% for inst in instituicoes %}
@@ -36,7 +35,6 @@
     </div>
 </div>
 
-<!-- Leaflet Libs -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -44,26 +42,17 @@
     // 1. Inicialização do Mapa
     var map = L.map('map', { 
         zoomControl: false,
-        trackResize: true // Ajuda o Leaflet a observar mudanças de tamanho
+        trackResize: true 
     }).setView([0, 0], 2);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; CARTO'
     }).addTo(map);
 
-    // FUNÇÃO CRUCIAL: Força o mapa a preencher o container
-    function fixMapSize() {
-        setTimeout(function(){ 
-            map.invalidateSize(); 
-        }, 200); // Pequeno delay para o CSS do Bootstrap assentar
-    }
+    // Variável global para armazenar todos os pontos (User + Instituições)
+    var allPoints = [];
 
-    // Chama ao carregar
-    window.addEventListener('load', fixMapSize);
-    // Chama ao redimensionar a tela
-    window.addEventListener('resize', fixMapSize);
-
-    // 2. Marcador Midnight Blue
+    // 2. Definição do Marcador Midnight Blue
     const midnightBluePin = L.divIcon({
         className: 'custom-div-icon',
         html: `<svg width="30" height="42" viewBox="0 0 30 42" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -71,8 +60,6 @@
                 fill="#1B263B" stroke="#415A77" stroke-width="2"/></svg>`,
         iconSize: [30, 42], iconAnchor: [15, 42], popupAnchor: [0, -40]
     });
-
-    var allPoints = [];
 
     // 3. Plotar Instituições
     {% localize off %}
@@ -101,42 +88,74 @@
     {% endfor %}
     {% endlocalize %}
 
-    // 4. Localização do Usuário
+    // 4. Função para centralizar o mapa com "Voo" (Fly)
+    function centerMap() {
+        if (allPoints.length > 0) {
+            // Recalcula o tamanho do container antes do voo para evitar erro de cinza no mobile
+            map.invalidateSize(); 
+            
+            const bounds = L.latLngBounds(allPoints);
+            // FlyToBounds força a centralização mesmo que o usuário tenha movido o mapa
+            map.flyToBounds(bounds, { 
+                padding: [50, 50], 
+                duration: 1.5, // tempo do voo em segundos
+                easeLinearity: 0.25 
+            });
+        }
+    }
+
+    // 5. Geolocalização
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(function(pos) {
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
-            L.circleMarker([lat, lng], { radius: 10, fillColor: "#00b4d8", color: "#fff", weight: 3, fillOpacity: 1 }).addTo(map).bindPopup("Você está aqui");
+            
+            // Adiciona o marcador do usuário
+            L.circleMarker([lat, lng], { 
+                radius: 10, 
+                fillColor: "#00b4d8", 
+                color: "#fff", 
+                weight: 3, 
+                fillOpacity: 1 
+            }).addTo(map).bindPopup("Você está aqui");
+
             allPoints.push([lat, lng]);
-            if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] });
-            document.getElementById('user-status').innerHTML = `<div class="card-body py-2 px-3 text-info small fw-bold"><i class="bi bi-geo-fill me-2"></i>Localização Ativa</div>`;
-            fixMapSize(); // Recalcula após focar no usuário
-        }, function() { if (allPoints.length > 0) map.fitBounds(allPoints, { padding: [50, 50] }); fixMapSize(); });
+
+            // Força o foco imediatamente após encontrar a posição
+            centerMap();
+            
+            document.getElementById('user-status').innerHTML = `<div class="card-body py-2 px-3 text-info small fw-bold"><i class="bi bi-geo-fill me-2"></i>Localização Encontrada</div>`;
+        }, function(error) {
+            console.warn("Erro ao obter GPS: ", error.message);
+            centerMap(); // Se falhar o GPS, foca ao menos nas instituições
+            document.getElementById('user-status').innerHTML = `<div class="card-body py-2 px-3 text-warning small fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>GPS não disponível</div>`;
+        });
     } else {
-        fixMapSize();
+        centerMap();
     }
+
+    // Garante que o mapa preencha o container ao carregar a página
+    window.addEventListener('load', () => {
+        setTimeout(centerMap, 500);
+    });
 </script>
 
 <style>
-    /* Estilos do Mapa Responsivo */
     .responsive-map {
         width: 100%;
         border-radius: 15px;
         border: 2px solid var(--accent-blue);
         min-height: 400px;
-        height: 60vh; /* Mobile */
+        height: 60vh;
     }
 
-    /* Desktop */
     @media (min-width: 992px) {
         .responsive-map {
-            /* Força a altura máxima baseada na tela */
             height: calc(100vh - 120px) !important; 
         }
     }
 
     .custom-div-icon { background: none; border: none; }
     
-    /* Popups Dark */
     .leaflet-popup-content-wrapper, .leaflet-popup-tip {
         background: var(--bg-midnight) !important;
         border: 1px solid var(--accent-blue);
@@ -145,11 +164,14 @@
     .leaflet-popup-content * { color: white !important; }
     .leaflet-container a.leaflet-popup-close-button { color: white !important; }
 
-    /* Lista Hover */
     .list-group-item-action:hover {
         background-color: var(--accent-blue) !important;
         padding-left: 20px !important;
         border-left: 5px solid var(--primary-action) !important;
     }
+
+    .custom-scroll-list::-webkit-scrollbar { width: 5px; }
+    .custom-scroll-list::-webkit-scrollbar-track { background: var(--bg-deep); }
+    .custom-scroll-list::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 10px; }
 </style>
 {% endblock %}
