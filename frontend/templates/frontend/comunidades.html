@@ -3,75 +3,83 @@
 
 {% block content %}
 <div class="container-fluid">
-    <div class="row g-4">
-        <div class="col-12 col-xl-5">
-            <div class="card shadow-lg border-0 mb-4">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-3">Criar nova comunidade</h3>
-                    <p class="text">Crie um grupo de apoio e permita que pessoas conversem em um espaço seguro.</p>
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">{% bootstrap_field form.nome %}</div>
-                        <div class="mb-3">{% bootstrap_field form.descricao %}</div>
-                        <div class="form-check mb-3">{% bootstrap_field form.anonima %}
-                            <label class="form-check-label" for="id_anonima"></label>
+    <div class="d-flex flex-column flex-lg-row align-items-start gap-3 mb-4">
+        <div class="flex-grow-1">
+            <h3 class="fw-bold mb-1">Comunidades</h3>
+            <p class="text mb-0">Participe de grupos de apoio com ou sem identificação.</p>
+        </div>
+        <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-lg-auto">
+            <form method="get" class="d-flex flex-grow-1">
+                <input type="search" name="search" value="{{ search_query }}" class="form-control form-control-dark" placeholder="Buscar comunidades" aria-label="Buscar comunidades">
+                <button type="submit" class="btn btn-outline-light ms-2"><i class="bi bi-search"></i></button>
+            </form>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCriarComunidade">
+                <i class="bi bi-plus-lg me-1"></i> Criar comunidade
+            </button>
+        </div>
+    </div>
+
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="list-group">
+                {% for comunidade in comunidades %}
+                <a href="{% url 'comunidade_detalhe' comunidade.pk %}" class="list-group-item list-group-item-action mb-2 p-3 rounded-4" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <h5 class="mb-1 text-white fw-bold">{{ comunidade.nome }}</h5>
+                            <p class="mb-2 text-muted small">{{ comunidade.descricao|default:'Sem descrição' }}</p>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg fw-bold">Criar comunidade</button>
+                        <div class="text-end">
+                            {% if request.user == comunidade.administrador %}
+                                <span class="badge bg-info text-dark">Admin</span>
+                            {% endif %}
+                            {% if comunidade.anonima %}
+                                <span class="badge bg-secondary">Anônima</span>
+                            {% else %}
+                                <span class="badge bg-success">Aberta</span>
+                            {% endif %}
                         </div>
-                    </form>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 align-items-center text-muted small">
+                        <span><i class="bi bi-people-fill me-1"></i>{{ comunidade.membros.count }} membro{{ comunidade.membros.count|pluralize }}</span>
+                        <span><i class="bi bi-person-circle me-1"></i>Admin: {{ comunidade.administrador.username }}</span>
+                        <span><i class="bi bi-clock me-1"></i>{{ comunidade.criado_em|date:'d/m/Y' }}</span>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="card border-secondary p-4 text-center text">
+                    Ainda não há comunidades criadas. Seja o primeiro a criar uma.
                 </div>
+                {% endfor %}
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="col-12 col-xl-7">
-            <div class="card shadow-lg border-0 mb-4">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <h3 class="fw-bold mb-1">Comunidades</h3>
-                            <p class="text mb-0">Participe de grupos de apoio com ou sem identificação.</p>
-                        </div>
-                    </div>
-                    <form method="GET" class="mb-4">
-                        <div class="input-group">
-                            <input type="text" name="search" class="form-control" placeholder="Buscar comunidades" value="{{ search_query|default:'' }}" aria-label="Buscar comunidades">
-                            <button class="btn btn-primary" type="submit">Buscar</button>
-                        </div>
-                    </form>
-                    <div class="list-group">
-                        {% for comunidade in comunidades %}
-                        <a href="{% url 'comunidade_detalhe' comunidade.pk %}" class="list-group-item list-group-item-action mb-2 p-3 rounded-4" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
-                            <div class="d-flex justify-content-between align-items-start gap-3">
-                                <div>
-                                    <h5 class="mb-1 text-white fw-bold">{{ comunidade.nome }}</h5>
-                                    <p class="mb-2 text-muted small">{{ comunidade.descricao|default:'Sem descrição' }}</p>
-                                </div>
-                                <div class="text-end">
-                                    {% if request.user == comunidade.administrador %}
-                                        <span class="badge bg-info text-dark">Admin</span>
-                                    {% endif %}
-                                    {% if comunidade.anonima %}
-                                        <span class="badge bg-secondary">Anônima</span>
-                                    {% else %}
-                                        <span class="badge bg-success">Aberta</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="d-flex flex-wrap gap-2 align-items-center text-muted small">
-                                <span><i class="bi bi-people-fill me-1"></i>{{ comunidade.membros.count }} membro{{ comunidade.membros.count|pluralize }}</span>
-                                <span><i class="bi bi-person-circle me-1"></i>Admin: {{ comunidade.administrador.username }}</span>
-                                <span><i class="bi bi-clock me-1"></i>{{ comunidade.criado_em|date:'d/m/Y' }}</span>
-                            </div>
-                        </a>
-                        {% empty %}
-                        <div class="card border-secondary p-4 text-center text">
-                            Ainda não há comunidades criadas. Seja o primeiro a criar uma.
-                        </div>
-                        {% endfor %}
+<div class="modal fade" id="modalCriarComunidade" tabindex="-1" aria-labelledby="modalCriarComunidadeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-bottom border-secondary">
+                <div>
+                    <h5 class="modal-title fw-bold" id="modalCriarComunidadeLabel">Criar nova comunidade</h5>
+                    <p class="mb-0 small text-muted">Abra um grupo de apoio seguro e acolhedor.</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">{% bootstrap_field form.nome %}</div>
+                    <div class="mb-3">{% bootstrap_field form.descricao %}</div>
+                    <div class="form-check mb-3">
+                        {% bootstrap_field form.anonima %}
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar comunidade</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
