@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, TagProblema, Instituicao, RecursoAjuda
+from .models import User, TagProblema, Instituicao, RecursoAjuda, Convenio 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -15,10 +15,14 @@ class TagProblemaAdmin(admin.ModelAdmin):
 
 @admin.register(Instituicao)
 class InstituicaoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'latitude', 'longitude')
-    filter_horizontal = ('tags',)
+    list_display = ('nome', 'tipo_pessoa', 'area_atuacao', 'cidade', 'estado')
+    list_filter = ('tipo_pessoa', 'area_atuacao', 'estado')
 
 @admin.register(RecursoAjuda)
 class RecursoAjudaAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'tipo', 'tag')
     list_filter = ('tipo', 'tag')
+    
+@admin.register(Convenio)
+class ConvenioAdmin(admin.ModelAdmin):
+    list_display = ('nome',)

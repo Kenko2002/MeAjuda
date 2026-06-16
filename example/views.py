@@ -1,6 +1,6 @@
 from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import TagProblema, Instituicao, RecursoAjuda, User
+from .models import TagProblema, Instituicao, RecursoAjuda, User, Convenio
 from .serializers import *
 
 class RegisterView(generics.CreateAPIView):
@@ -18,3 +18,8 @@ class RecursoAjudaViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = RecursoAjudaSerializer
     def get_queryset(self):
         return RecursoAjuda.objects.filter(tag__in=self.request.user.problemas.all())
+    
+class ConvenioViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ConvenioSerializer
+    queryset = Convenio.objects.all()
+    

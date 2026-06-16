@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, TagProblema, Instituicao, RecursoAjuda
+from .models import User, TagProblema, Instituicao, RecursoAjuda, Convenio
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -22,3 +22,6 @@ class InstituicaoSerializer(serializers.ModelSerializer):
 class RecursoAjudaSerializer(serializers.ModelSerializer):
     tag_nome = serializers.ReadOnlyField(source='tag.nome')
     class Meta: model = RecursoAjuda; fields = '__all__'
+
+class  ConvenioSerializer(serializers.ModelSerializer):
+    class Meta: model = Convenio; fields = '__all__'

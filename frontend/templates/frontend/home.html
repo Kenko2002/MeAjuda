@@ -82,6 +82,23 @@
                     "<a href='https://www.google.com/maps/place/{{ inst.latitude }},{{ inst.longitude }}' target='_blank' class='btn btn-primary btn-sm w-100' style='border-radius: 6px; font-weight: bold; background-color: var(--primary-action); border: none; padding: 6px;'>" +
                         "<i class='bi bi-geo-alt-fill me-1'></i> IR" +
                     "</a>" +
+                    "<div style='display:flex; gap:6px; margin-top:8px;'>" +
+                        "{% if inst.website %}" +
+                            "<a href='" + "{{ inst.website|escapejs }}" + "' target='_blank' rel='noopener noreferrer' class='btn btn-outline-light btn-sm' style='border-radius:6px; font-weight:bold; padding:5px;'>" +
+                                "<i class='bi bi-globe me-1'></i> Site" +
+                            "</a>" +
+                        "{% endif %}" +
+                        "{% if inst.whatsapp %}" +
+                            "<a href='https://wa.me/{{ inst.whatsapp|urlencode }}' target='_blank' rel='noopener noreferrer' class='btn btn-success btn-sm' style='border-radius:6px; font-weight:bold; padding:5px; background:#25D366; border:none; color:white;'>" +
+                                "<i class='bi bi-whatsapp me-1'></i> WhatsApp" +
+                            "</a>" +
+                        "{% endif %}" +
+                        "{% if inst.instagram %}" +
+                            "<a href='" + "{{ inst.instagram|escapejs }}" + "' target='_blank' rel='noopener noreferrer' class='btn btn-outline-light btn-sm' style='border-radius:6px; font-weight:bold; padding:5px;'>" +
+                                "<i class='bi bi-instagram me-1'></i> Instagram" +
+                            "</a>" +
+                        "{% endif %}" +
+                    "</div>" +
                 "</div>"
             );
         allPoints.push([{{ inst.latitude }}, {{ inst.longitude }}]);
