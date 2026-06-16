@@ -1,0 +1,190 @@
+{% extends "frontend/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row g-4">
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1">{{ comunidade.nome }}</h3>
+                            <p class="text mb-2">{{ comunidade.descricao|default:'Sem descrição para esta comunidade.' }}</p>
+                            <div class="d-flex flex-wrap gap-2 align-items-center small text-muted">
+                                <span><i class="bi bi-person-circle me-1"></i>Admin: {{ comunidade.administrador.username }}</span>
+                                {% if comunidade.anonima %}
+                                    <span class="badge bg-secondary">Chat anônimo</span>
+                                {% else %}
+                                    <span class="badge bg-success">Chat público</span>
+                                {% endif %}
+                                <span><i class="bi bi-people-fill me-1"></i>{{ comunidade.membros.count }} membro{{ comunidade.membros.count|pluralize }}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            {% if not is_member %}
+                                {% if is_pending %}
+                                    <span class="badge bg-warning text-dark">Seu pedido está pendente</span>
+                                {% else %}
+                                    <form method="POST" class="mb-0">
+                                        {% csrf_token %}
+                                        <button type="submit" name="join" class="btn btn-outline-light btn-sm">Entrar na comunidade</button>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-primary">Você participa</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div id="chat-box" class="border rounded-4 p-3 mb-3" style="max-height: 55vh; overflow-y: auto; background: rgba(255,255,255,0.04);">
+                        {% for mensagem in mensagens %}
+                            <div class="mb-3 p-3 rounded-3" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <strong class="text-white">
+                                            {% if comunidade.anonima %}Membro Anônimo{% elif mensagem.autor %}{{ mensagem.autor.username }}{% else %}Anônimo{% endif %}
+                                        </strong>
+                                        <span class="text-muted small">&middot; {{ mensagem.criado_em|date:'d/m/Y H:i' }}</span>
+                                    </div>
+                                    {% if mensagem.autor == request.user %}
+                                        <span class="badge bg-info text-dark small">Você</span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 text-white" style="white-space: pre-wrap;">{{ mensagem.texto }}</p>
+                            </div>
+                        {% empty %}
+                            <div class="text-center text-muted py-5">
+                                <i class="bi bi-chat-dots fs-1 mb-3"></i>
+                                <p class="mb-0">Seja o primeiro a enviar uma mensagem nesta comunidade.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="card bg-transparent border-0">
+                        <div class="card-body p-0">
+                            {% if is_member %}
+                                {% if is_muted %}
+                                    <div class="alert alert-warning mb-0" role="alert">
+                                        Você foi silenciado pelo administrador e não pode enviar mensagens nesta comunidade.
+                                    </div>
+                                {% else %}
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        {{ message_form.texto }}
+                                        <div class="mt-3 d-flex gap-2 flex-column flex-sm-row align-items-stretch">
+                                            <button type="submit" name="send_message" class="btn btn-primary flex-grow-1">Enviar mensagem</button>
+                                            <a href="{% url 'comunidades' %}" class="btn btn-outline-light flex-shrink-0">Voltar</a>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <div class="alert alert-info mb-0" role="alert">
+                                    Para enviar mensagens, clique em "Entrar na comunidade" acima.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            {% if is_admin %}
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Solicitações pendentes</h5>
+                    {% if pending_requests %}
+                        <ul class="list-group list-group-flush mb-3">
+                            {% for candidato in pending_requests %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-transparent border-0">
+                                    <div>
+                                        <strong>{{ candidato.username }}</strong>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <form method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="user_id" value="{{ candidato.pk }}">
+                                            <button type="submit" name="approve_member" class="btn btn-sm btn-success">Aprovar</button>
+                                        </form>
+                                        <form method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="user_id" value="{{ candidato.pk }}">
+                                            <button type="submit" name="reject_member" class="btn btn-sm btn-outline-light">Recusar</button>
+                                        </form>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text small">Nenhuma solicitação pendente.</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Membros</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for membro in comunidade.membros.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-transparent border-0">
+                                <div>
+                                    {% if membro == comunidade.administrador %}
+                                        <strong>{{ membro.username }}</strong>
+                                        <span class="badge bg-info text-dark ms-2">Admin</span>
+                                    {% else %}
+                                        {{ membro.username }}
+                                        {% if membro.pk in muted_member_ids %}
+                                            <span class="badge bg-warning text-dark ms-2">Silenciado</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                {% if membro != comunidade.administrador %}
+                                    <div class="d-flex gap-2">
+                                        {% if is_admin %}
+                                            <form method="POST" class="mb-0">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_id" value="{{ membro.pk }}">
+                                                {% if membro.pk in muted_member_ids %}
+                                                    <button type="submit" name="unmute_member" class="btn btn-sm btn-outline-light">Desmutar</button>
+                                                {% else %}
+                                                    <button type="submit" name="mute_member" class="btn btn-sm btn-warning">Mutar</button>
+                                                {% endif %}
+                                            </form>
+                                        {% endif %}
+                                        <form method="POST" class="mb-0">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="user_id" value="{{ membro.pk }}">
+                                            <button type="submit" name="remove_member" class="btn btn-sm btn-danger">Remover</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Dicas de apoio</h5>
+                    <p class="text">Use este espaço para trocar apoio, relatos e sugestões de recursos. Lembre-se de manter o respeito e o acolhimento.</p>
+                    <ul class="list-unstyled small text">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill me-2 text-success"></i> Seja gentil e escute com atenção.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill me-2 text-success"></i> Evite divulgar dados pessoais.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill me-2 text-success"></i> Em chats anônimos, seus dados não aparecem para os demais.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatBox = document.getElementById('chat-box');
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    });
+</script>
+{% endblock %}

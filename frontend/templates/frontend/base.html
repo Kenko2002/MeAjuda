@@ -115,6 +115,11 @@
                         <i class="bi bi-person-circle"></i> Perfil
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% url 'comunidades' %}" class="nav-link {% if request.resolver_match.url_name == 'comunidades' or request.resolver_match.url_name == 'comunidade_detalhe' %}active{% endif %}">
+                        <i class="bi bi-people-fill"></i> Comunidades
+                    </a>
+                </li>
                 <li class="nav-item mt-4">
                     <a href="{% url 'logout' %}" class="nav-link text-warning">
                         <i class="bi bi-door-open-fill"></i> Sair

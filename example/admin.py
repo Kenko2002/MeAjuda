@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, TagProblema, Instituicao, RecursoAjuda, Convenio 
+from .models import User, TagProblema, Instituicao, RecursoAjuda, Convenio, Comunidade, Mensagem 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -26,3 +26,16 @@ class RecursoAjudaAdmin(admin.ModelAdmin):
 @admin.register(Convenio)
 class ConvenioAdmin(admin.ModelAdmin):
     list_display = ('nome',)
+
+@admin.register(Comunidade)
+class ComunidadeAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'administrador', 'anonima', 'criado_em')
+    list_filter = ('anonima',)
+    search_fields = ('nome', 'descricao', 'administrador__username')
+    filter_horizontal = ('membros', 'membros_pendentes', 'membros_silenciados')
+
+@admin.register(Mensagem)
+class MensagemAdmin(admin.ModelAdmin):
+    list_display = ('comunidade', 'autor', 'criado_em')
+    list_filter = ('comunidade',)
+    search_fields = ('texto', 'autor__username')
