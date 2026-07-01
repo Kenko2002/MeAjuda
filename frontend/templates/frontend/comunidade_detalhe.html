@@ -22,7 +22,7 @@
                                     {% else %}
                                         <span class="badge badge-open"><i class="bi bi-globe me-1"></i>Pública</span>
                                     {% endif %}
-                                    <span class="text-muted small"><i class="bi bi-people me-1"></i>{{ comunidade.membros.count }}</span>
+                                    <span class="text small"><i class="bi bi-people me-1"></i>{{ comunidade.membros.count }}</span>
                                 </div>
                             </div>
                         </div>
@@ -41,7 +41,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    <p class="text-muted small mt-3 mb-0">{{ comunidade.descricao|default:'Espaço de acolhimento e suporte.' }}</p>
+                    <p class="text small mt-3 mb-0">{{ comunidade.descricao|default:'Espaço de acolhimento e suporte.' }}</p>
                 </div>
             </div>
 
@@ -73,7 +73,7 @@
                     {% empty %}
                         <div class="empty-chat-state text-center py-5">
                             <i class="bi bi-chat-dots fs-1 d-block mb-3 opacity-25"></i>
-                            <p class="text-muted">Nenhuma mensagem ainda. Inicie a conversa!</p>
+                            <p class="text">Nenhuma mensagem ainda. Inicie a conversa!</p>
                         </div>
                     {% endfor %}
                 </div>
@@ -127,7 +127,7 @@
                                 </div>
                             </div>
                         {% empty %}
-                            <p class="text-muted small mb-0">Nenhuma pendência.</p>
+                            <p class="text small mb-0">Nenhuma pendência.</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                                     </span>
                                     {% if membro != comunidade.administrador %}
                                         <div class="dropdown">
-                                            <button class="btn btn-link btn-sm text-muted p-0" data-bs-toggle="dropdown">
+                                            <button class="btn btn-link btn-sm text p-0" data-bs-toggle="dropdown">
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
