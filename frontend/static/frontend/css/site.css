@@ -13,3 +13,107 @@ h1, h2 {
 .navbar {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
+
+/* Efeito de Gradiente no Texto */
+.text-gradient {
+    background: linear-gradient(45deg, #ffffff, #a5a5a5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Cards de Comunidade Modernos */
+.community-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.community-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--primary-action) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Badges Customizadas */
+.badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+.badge-admin { background: rgba(0, 180, 216, 0.2); color: #00b4d8 !important; }
+.badge-anon { background: rgba(108, 117, 125, 0.2); color: #adb5bd !important; }
+.badge-open { background: rgba(40, 167, 69, 0.2); color: #2ecc71 !important; }
+
+/* Barra de Busca */
+.search-bar .input-group {
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.search-bar .form-control {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Botão Flutuante (Mobile) */
+.btn-fab {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    z-index: 1050;
+}
+
+/* Botão Criar (Desktop) */
+.btn-desktop-add {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 1050;
+}
+
+/* Limitar linhas da descrição */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+}
+
+/* Estilo do Modal */
+.modal-content {
+    background-color: var(--bg-midnight) !important;
+    border: 1px solid var(--accent-blue) !important;
+    border-radius: 25px;
+}
+
+.category-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(65, 90, 119, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state {
+    background: rgba(255,255,255,0.02);
+    border: 2px dashed rgba(255,255,255,0.1);
+}
